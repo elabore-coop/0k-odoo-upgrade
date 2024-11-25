@@ -44,11 +44,11 @@ echo "Postgres service name .... $POSTGRES_SERVICE_NAME"
 
 
 ##############################################
-# CHECKS ALL NEEDED COMPONANTS ARE AVAILABLE #
+# CHECKS ALL NEEDED COMPONENTS ARE AVAILABLE #
 ##############################################
 
 echo "
-==== CHECKS ALL NEEDED COMPONANTS ARE AVAILABLE ===="
+==== CHECKS ALL NEEDED COMPONENTS ARE AVAILABLE ===="
 
 # Check POSTGRES container is running
 if ! docker ps | grep -q "$POSTGRES_SERVICE_NAME"; then
@@ -88,11 +88,11 @@ fi
 
 
 ############################
-# COPY ORIGINAL COMPONANTS #
+# COPY ORIGINAL COMPONENTS #
 ############################
 
 echo "
-==== COPY ORIGINAL COMPONANTS ===="
+==== COPY ORIGINAL COMPONENTS ===="
 echo "UPGRADE: Start copy"
 
 # Copy database
