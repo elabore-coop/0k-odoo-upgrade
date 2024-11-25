@@ -50,6 +50,14 @@ echo "Postgres service name .... $POSTGRES_SERVICE_NAME"
 echo "
 ==== CHECKS ALL NEEDED COMPONANTS ARE AVAILABLE ===="
 
+# Check POSTGRES container is running
+if ! docker ps | grep -q "$POSTGRES_SERVICE_NAME"; then
+    printf "Docker container %s is not running.\n" "$POSTGRES_SERVICE_NAME" >&2
+    return 1
+else
+    echo "UPGRADE: container $POSTGRES_SERVICE_NAME running."
+fi
+
 # Check origin database is in the local postgres
 DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$ORIGIN_DB_NAME'" | tr -d '[:space:]')
 if [ "$DB_EXISTS" ]; then
@@ -77,13 +85,7 @@ else
     exit 1
 fi
 
-# Check POSTGRES container is running
-if ! docker ps | grep -q "$POSTGRES_SERVICE_NAME"; then
-    printf "Docker container %s is not running.\n" "$POSTGRES_SERVICE_NAME" >&2
-    return 1
-else
-    echo "UPGRADE: container $POSTGRES_SERVICE_NAME running."
-fi
+
 
 ############################
 # COPY ORIGINAL COMPONANTS #
