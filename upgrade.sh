@@ -51,7 +51,7 @@ echo "
 ==== CHECKS ALL NEEDED COMPONANTS ARE AVAILABLE ===="
 
 # Check origin database is in the local postgres
-DB_EXISTS=$(docker exec -it -u 70 lokavaluto_postgres_1 psql -tc "SELECT 1 FROM pg_database WHERE datname = '$ORIGIN_DB_NAME'" | tr -d '[:space:]')
+DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$ORIGIN_DB_NAME'" | tr -d '[:space:]')
 if [ "$DB_EXISTS" ]; then
     echo "UPGRADE: Database '$ORIGIN_DB_NAME' found."
 else
@@ -60,7 +60,7 @@ else
 fi
 
 # Check final version database model is in the local postgres
-DB_EXISTS=$(docker exec -it -u 70 lokavaluto_postgres_1 psql -tc "SELECT 1 FROM pg_database WHERE datname = '$FINALE_DB_MODEL_NAME'" | tr -d '[:space:]')
+DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$FINALE_DB_MODEL_NAME'" | tr -d '[:space:]')
 if [ "$DB_EXISTS" ]; then
     echo "UPGRADE: Database '$FINALE_DB_MODEL_NAME' found."
 else
@@ -78,11 +78,11 @@ else
 fi
 
 # Check POSTGRES container is running
-if ! docker ps | grep -q "lokavaluto_postgres_1"; then
-    printf "Docker container %s is not running.\n" "lokavaluto_postgres_1" >&2
+if ! docker ps | grep -q "$POSTGRES_SERVICE_NAME"; then
+    printf "Docker container %s is not running.\n" "$POSTGRES_SERVICE_NAME" >&2
     return 1
 else
-    echo "UPGRADE: container lokavaluto_postgres_1 running."
+    echo "UPGRADE: container $POSTGRES_SERVICE_NAME running."
 fi
 
 ############################
@@ -94,7 +94,7 @@ echo "
 echo "UPGRADE: Start copy"
 
 # Copy database
-docker exec -u 70 lokavaluto_postgres_1 pgm cp -f "$ORIGIN_DB_NAME" "${COPY_DB_NAME}@${COPY_DB_NAME}" || exit 1
+docker exec -u 70 $POSTGRES_SERVICE_NAME pgm cp -f "$ORIGIN_DB_NAME" "${COPY_DB_NAME}@${COPY_DB_NAME}" || exit 1
 echo "UPGRADE: original database copied in ${COPY_DB_NAME}@${COPY_DB_NAME}."
 
 # Copy filestore

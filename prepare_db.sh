@@ -64,8 +64,8 @@ generate_sql_to_remove_commands() {
 echo "UPGRADE: Start database preparation"
 
 # Check POSTGRES container is running
-if ! docker ps | grep -q "lokavaluto_postgres_1"; then
-    printf "Docker container %s is not running.\n" "lokavaluto_postgres_1" >&2
+if ! docker ps | grep -q "$DB_CONTAINER_NAME"; then
+    printf "Docker container %s is not running.\n" "$DB_CONTAINER_NAME" >&2
     return 1
 fi
 
