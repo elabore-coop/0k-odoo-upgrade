@@ -1,0 +1,78 @@
+ou12:
+  charm: odoo-tecnativa
+  docker-compose:
+    image: docker.0k.io/mirror/odoo:rc_12.0-MYC-INIT-3.7
+    ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+    command:
+      - "--log-level=debug"
+      - "--limit-time-cpu=1000000"
+      - "--limit-time-real=1000000"
+  options:
+    workers: 0
+
+ou13:
+   charm: odoo-tecnativa
+   docker-compose:
+     image: docker.0k.io/mirror/odoo:rc_13.0-MYC-INIT-OU
+     ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+     command:
+       - "--log-level=debug"
+       - "--limit-time-cpu=1000000"
+       - "--limit-time-real=1000000"
+   options:
+     workers: 0
+
+
+ou14:
+  charm: odoo-tecnativa
+  docker-compose:
+    image: docker.0k.io/mirror/odoo:rc_14.0-MYC-INIT
+    ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+    command:
+      - "--log-level=debug"
+      - "--limit-time-cpu=1000000"
+      - "--limit-time-real=1000000"
+  options:
+    workers: 0
+
+
+ou15:
+  charm: odoo-tecnativa
+  docker-compose:
+    #image: docker.0k.io/mirror/odoo:rc_15.0-MYC-INIT
+    image: docker.0k.io/mirror/odoo/rc_15.0-myc-init-20241007-092844-0f8b8b
+    ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+    command:
+      - "--log-level=debug"
+      - "--limit-time-cpu=1000000"
+      - "--limit-time-real=1000000"
+  options:
+    workers: 0
+
+ou16:
+  charm: odoo-tecnativa
+  docker-compose:
+    image: docker.0k.io/mirror/odoo:rc_16.0-MYC-INIT
+    ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+    command:
+      - "--log-level=debug"
+      - "--limit-time-cpu=1000000"
+      - "--limit-time-real=1000000"
+  options:
+    workers: 0
+
+ou17:
+  charm: odoo-tecnativa
+  docker-compose:
+    image: docker.0k.io/mirror/odoo:rc_17.0-MYC-INIT
+    ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
+    command:
+      - "--log-level=debug"
+      - "--limit-time-cpu=1000000"
+      - "--limit-time-real=1000000"
+  options:
+    workers: 0
+
+postgres:
+  docker-compose:
+    image: docker.0k.io/postgres:12.15.0-myc
