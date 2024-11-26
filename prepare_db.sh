@@ -69,9 +69,9 @@ if ! docker ps | grep -q "$DB_CONTAINER_NAME"; then
     return 1
 fi
 
-EXT_EXISTS=$(query_postgres_container "SELECT 1 FROM pg_extension WHERE extname = 'dblink'")
+EXT_EXISTS=$(query_postgres_container "SELECT 1 FROM pg_extension WHERE extname = 'dblink'") || exit 1
 if [ "$EXT_EXISTS" != "1" ]; then
-    query_postgres_container "CREATE EXTENSION dblink;"
+    query_postgres_container "CREATE EXTENSION dblink;" || exit 1
 fi
 
 # Neutralize the database
@@ -85,8 +85,10 @@ ALTER TABLE ir_cron ADD COLUMN IF NOT EXISTS active_bkp BOOLEAN;
 UPDATE ir_cron SET active_bkp = active;
 UPDATE ir_cron SET active = False;
 EOF
-)
-query_postgres_container "$SQL_NEUTRALIZE"
+	      )
+echo "Neutralize base..."
+query_postgres_container "$SQL_NEUTRALIZE" || exit 1
+echo "Base neutralized..."
 
 ################################
 ## Uninstall unwished add-ons ##
@@ -101,7 +103,8 @@ UPDATE ir_module_module SET to_remove = false;
 UPDATE ir_module_module SET dependencies = '';
 EOF
 )
-query_postgres_container "$SQL_INIT"
+echo "Prepare ir.module table"
+query_postgres_container "$SQL_INIT" || exit 1
 
 
 # List add-ons not available on the final Odoo version
@@ -118,7 +121,8 @@ SQL_404_ADDONS_LIST="
 	ORDER BY module_origin.name
 ;
 "
-query_postgres_container "$SQL_404_ADDONS_LIST" > 404_addons
+echo "Retrieve 404 addons... "
+query_postgres_container "$SQL_404_ADDONS_LIST" > 404_addons || exit 1
 
 
 # Ask confirmation to uninstall the selected add-ons
@@ -140,7 +144,7 @@ SQL_TAG_TO_REMOVE=""
 while IFS= read -r name; do
     SQL_TAG_TO_REMOVE+="UPDATE ir_module_module SET to_remove = TRUE WHERE name = '$name' AND state = 'installed';"
 done < combined_addons
-query_postgres_container "$SQL_TAG_TO_REMOVE"
+query_postgres_container "$SQL_TAG_TO_REMOVE" || exit 1
 echo "Add-ons to be removed TAGGED."
 
 
@@ -156,7 +160,7 @@ SQL_DEPENDENCIES="
 "
 updated=""
 while [[ "$updated" != "UPDATE 0" ]]; do
-    updated=$(query_postgres_container "$SQL_DEPENDENCIES")
+    updated=$(query_postgres_container "$SQL_DEPENDENCIES") || exit 1
 done;
 echo "All dependencies to remove TAGGED"
 
@@ -164,8 +168,8 @@ echo "All dependencies to remove TAGGED"
 # Change state of add-ons to remove
 echo "Change state of all add-ons to remove..."
 SQL_UPDATE_STATE="UPDATE ir_module_module SET state = 'to remove' WHERE to_remove = TRUE AND state = 'installed';"
-query_postgres_container "$SQL_UPDATE_STATE"
-echo "Add-ons to remove with state 'to_remove'"
+query_postgres_container "$SQL_UPDATE_STATE" || exit 1
+echo "Add-ons to remove with state 'to remove'"
 
 
 # Launch Odooo container and launch the uninstall function
