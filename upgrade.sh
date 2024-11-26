@@ -131,7 +131,7 @@ echo "UPGRADE: Migration path is ${versions[@]}"
 echo "
 ==== DATABASE PREPARATION ===="
 
-source prepare_db.sh "$COPY_DB_NAME" "$COPY_DB_NAME" "$FINALE_DB_MODEL_NAME" "$FINALE_SERVICE_NAME"
+./prepare_db.sh "$COPY_DB_NAME" "$COPY_DB_NAME" "$FINALE_DB_MODEL_NAME" "$FINALE_SERVICE_NAME" || exit 1
 
 
 ###################
@@ -148,13 +148,13 @@ do
     cd "${end_version}.0"
 
     ### Execute pre_upgrade scripts
-    source ./pre_upgrade.sh
+    ./pre_upgrade.sh || exit 1
 
     ### Start upgrade
-    source ./upgrade.sh
+    ./upgrade.sh || exit 1
 
     ### Execute post-upgrade scripts
-    source ./post_upgrade.sh
+    ./post_upgrade.sh || exit 1
 
     ### Return to parent repository for the following steps
     cd ..
@@ -165,7 +165,7 @@ done
 ##########################
 # POST-UPGRADE PROCESSES #
 ##########################
-source finalize_db.sh "$FINALE_DB_NAME" "$FINALE_SERVICE_NAME"
+./finalize_db.sh "$FINALE_DB_NAME" "$FINALE_SERVICE_NAME" || exit 1
 
 
 echo "UPGRADE PROCESS ENDED WITH SUCCESS"
