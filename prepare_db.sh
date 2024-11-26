@@ -5,25 +5,6 @@ ODOO_SERVICE="$1"
 DB_NAME="$2"
 DB_FINALE_MODEL="$3"
 DB_FINALE_SERVICE="$4"
-DB_CONTAINER_NAME="lokavaluto_postgres_1"
-
-# Function to launch an SQL request to the postgres container
-query_postgres_container(){
-    local query="$1"
-    if [ -z "$query" ]; then
-	return 0
-    fi
-    local result
-    if ! result=$(docker exec -u 70 $DB_CONTAINER_NAME psql -d $DB_NAME -t -A -c "$query" 2>&1); then
-        printf "Failed to execute SQL query: %s\n" "$query" >&2
-        printf "Error: %s\n" "$result" >&2
-        exit 1
-    fi
-    # Remove leading/trailing whitespace from result
-    result=$(echo "$result" | xargs)
-    echo "$result"
-}
-
 
 # Function to display the combined list of add-ons to uninstall
 display_combined_list(){
@@ -69,9 +50,9 @@ if ! docker ps | grep -q "$DB_CONTAINER_NAME"; then
     return 1
 fi
 
-EXT_EXISTS=$(query_postgres_container "SELECT 1 FROM pg_extension WHERE extname = 'dblink'") || exit 1
+EXT_EXISTS=$(query_postgres_container "SELECT 1 FROM pg_extension WHERE extname = 'dblink'" "$DB_NAME") || exit 1
 if [ "$EXT_EXISTS" != "1" ]; then
-    query_postgres_container "CREATE EXTENSION dblink;" || exit 1
+    query_postgres_container "CREATE EXTENSION dblink;" "$DB_NAME" || exit 1
 fi
 
 # Neutralize the database
@@ -87,7 +68,7 @@ UPDATE ir_cron SET active = False;
 EOF
 	      )
 echo "Neutralize base..."
-query_postgres_container "$SQL_NEUTRALIZE" || exit 1
+query_postgres_container "$SQL_NEUTRALIZE" "$DB_NAME" || exit 1
 echo "Base neutralized..."
 
 ################################
@@ -104,7 +85,7 @@ UPDATE ir_module_module SET dependencies = '';
 EOF
 )
 echo "Prepare ir.module table"
-query_postgres_container "$SQL_INIT" || exit 1
+query_postgres_container "$SQL_INIT" "$DB_NAME" || exit 1
 
 
 # List add-ons not available on the final Odoo version
@@ -122,7 +103,7 @@ SQL_404_ADDONS_LIST="
 ;
 "
 echo "Retrieve 404 addons... "
-query_postgres_container "$SQL_404_ADDONS_LIST" > 404_addons || exit 1
+query_postgres_container "$SQL_404_ADDONS_LIST" "$DB_NAME" > 404_addons || exit 1
 
 
 # Ask confirmation to uninstall the selected add-ons
@@ -144,7 +125,7 @@ SQL_TAG_TO_REMOVE=""
 while IFS= read -r name; do
     SQL_TAG_TO_REMOVE+="UPDATE ir_module_module SET to_remove = TRUE WHERE name = '$name' AND state = 'installed';"
 done < combined_addons
-query_postgres_container "$SQL_TAG_TO_REMOVE" || exit 1
+query_postgres_container "$SQL_TAG_TO_REMOVE" "$DB_NAME" || exit 1
 echo "Add-ons to be removed TAGGED."
 
 
@@ -160,7 +141,7 @@ SQL_DEPENDENCIES="
 "
 updated=""
 while [[ "$updated" != "UPDATE 0" ]]; do
-    updated=$(query_postgres_container "$SQL_DEPENDENCIES") || exit 1
+    updated=$(query_postgres_container "$SQL_DEPENDENCIES" "$DB_NAME") || exit 1
 done;
 echo "All dependencies to remove TAGGED"
 
@@ -168,7 +149,7 @@ echo "All dependencies to remove TAGGED"
 # Change state of add-ons to remove
 echo "Change state of all add-ons to remove..."
 SQL_UPDATE_STATE="UPDATE ir_module_module SET state = 'to remove' WHERE to_remove = TRUE AND state = 'installed';"
-query_postgres_container "$SQL_UPDATE_STATE" || exit 1
+query_postgres_container "$SQL_UPDATE_STATE" "$DB_NAME" || exit 1
 echo "Add-ons to remove with state 'to remove'"
 
 

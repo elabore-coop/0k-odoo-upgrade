@@ -21,7 +21,7 @@ FINALE_DB_NAME="ou${FINAL_VERSION}"
 FINALE_SERVICE_NAME="${FINALE_DB_NAME}"
 
 # Service postgres name
-POSTGRES_SERVICE_NAME="lokavaluto_postgres_1"
+export POSTGRES_SERVICE_NAME="lokavaluto_postgres_1"
 
 #############################################
 # DISPLAYS ALL INPUTS PARAMETERS
@@ -41,6 +41,25 @@ echo "Copy DB name ............. $COPY_DB_NAME"
 echo "Finale DB name ........... $FINALE_DB_NAME"
 echo "Finale service name ...... $FINALE_SERVICE_NAME"
 echo "Postgres service name .... $POSTGRES_SERVICE_NAME"
+
+
+
+# Function to launch an SQL request to the postgres container
+query_postgres_container(){
+    local QUERY="$1"
+    local DB_NAME="$2"
+    if [ -z "$QUERY" ]; then
+	return 0
+    fi
+    local result
+    if ! result=$(docker exec -u 70 "$POSTGRES_SERVICE_NAME" psql -d "$DB_NAME" -t -A -c "$QUERY"); then
+        printf "Failed to execute SQL query: %s\n" "$query" >&2
+        printf "Error: %s\n" "$result" >&2
+        exit 1
+    fi
+    echo "$result"
+}
+export -f query_postgres_container
 
 
 ##############################################

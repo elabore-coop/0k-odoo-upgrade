@@ -1,24 +1,5 @@
 #!/bin/bash
 
-DB_CONTAINER_NAME="lokavaluto_postgres_1"
-
-# Function to launch an SQL request to the postgres container
-query_postgres_container(){
-    local query="$1"
-    if [ -z "$query" ]; then
-	return 0
-    fi
-    local result
-
-    if ! result=$(docker exec -u 70 "$DB_CONTAINER_NAME" psql -d ou15 -t -A -c "$query" 2>&1); then
-        printf "Failed to execute SQL query: %s\n" "$query" >&2
-        printf "Error: %s\n" "$result" >&2
-        exit 1
-    fi
-    # Remove leading/trailing whitespace from result
-    result=$(echo "$result" | xargs)
-}
-
 echo "Prepare migration to 15.0..."
 
 # Copy database
@@ -32,7 +13,7 @@ DELETE FROM ir_model_data WHERE module = 'base' AND name = 'module_account_usabi
 EOF
 )
 echo "SQL command = $PRE_MIGRATE_SQL"
-query_postgres_container "$PRE_MIGRATE_SQL" >&1
+query_postgres_container "$PRE_MIGRATE_SQL" ou15 || exit 1
 
 
 # Copy filestores

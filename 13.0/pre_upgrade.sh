@@ -1,24 +1,5 @@
 #!/bin/bash
 
-DB_CONTAINER_NAME="lokavaluto_postgres_1"
-
-# Function to launch an SQL request to the postgres container
-query_postgres_container(){
-    local query="$1"
-    if [ -z "$query" ]; then
-	return 0
-    fi
-    local result
-    if ! result=$(docker exec -u 70 "$DB_CONTAINER_NAME" psql -d ou13 -t -A -c "$query" 2>&1); then
-        printf "Failed to execute SQL query: %s\n" "$query" >&2
-        printf "Error: %s\n" "$result" >&2
-        exit 1
-    fi
-    # Remove leading/trailing whitespace from result
-    result=$(echo "$result" | xargs)
-    echo "$result"
-}
-
 echo "Prepare migration to 13.0..."
 
 # Copy database
@@ -34,7 +15,7 @@ UPDATE ir_model_data SET model = 'ir.ui.view' WHERE module = 'website_sale' AND 
 UPDATE ir_model_data SET model = 'ir.ui.view' WHERE module = 'website_sale' AND name = 'product_comment';
 EOF
 )
-query_postgres_container "$PRE_MIGRATE_SQL"
+query_postgres_container "$PRE_MIGRATE_SQL" ou13 || exit 1
 
 
 # Copy filestores
