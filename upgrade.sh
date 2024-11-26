@@ -61,6 +61,15 @@ query_postgres_container(){
 }
 export -f query_postgres_container
 
+# Function to copy the postgres databases
+copy_database(){
+    local FROM_DB="$1"
+    local TO_SERVICE="$2"
+    local TO_DB="$3"
+    docker exec -u 70 "$POSTGRES_SERVICE_NAME" pgm cp -f "$FROM_DB" "$TO_DB"@"$TO_SERVICE"
+}
+export -f copy_database
+
 # Function to copy the filetores
 copy_filestore(){
     local FROM_SERVICE="$1"
@@ -126,7 +135,7 @@ echo "
 echo "UPGRADE: Start copy"
 
 # Copy database
-docker exec -u 70 $POSTGRES_SERVICE_NAME pgm cp -f "$ORIGIN_DB_NAME" "${COPY_DB_NAME}@${COPY_DB_NAME}" || exit 1
+copy_database "$ORIGIN_DB_NAME" "$COPY_DB_NAME" "$COPY_DB_NAME" || exit 1
 echo "UPGRADE: original database copied in ${COPY_DB_NAME}@${COPY_DB_NAME}."
 
 # Copy filestore

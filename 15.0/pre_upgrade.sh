@@ -3,7 +3,7 @@
 echo "Prepare migration to 15.0..."
 
 # Copy database
-docker exec -u 70 "$DB_CONTAINER_NAME" pgm cp -f ou14 ou15@ou15
+copy_database ou14 ou15 ou15 || exit 1
 
 # Execute SQL pre-migration commands
 PRE_MIGRATE_SQL=$(cat <<'EOF'
