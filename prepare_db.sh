@@ -6,13 +6,6 @@ DB_NAME="$2"
 DB_FINALE_MODEL="$3"
 DB_FINALE_SERVICE="$4"
 
-# Function to display the combined list of add-ons to uninstall
-display_combined_list(){
-    cat 404_addons force_uninstall_addons > combined_addons
-    echo "UPGRADE: Add-ons to uninstall (forced and not found in final Odoo version):"
-    cat combined_addons
-}
-
 # Function to ask if the add-ons list to uninstall is OK
 ask_confirmation() {
     while true; do
@@ -20,25 +13,15 @@ ask_confirmation() {
 Do you accept to uninstall all these add-ons? (Y/N/R)"
         echo "Y - Yes, let's go on with the upgrade."
         echo "N - No, stop the upgrade"
-        echo "R - I've edited the list, please Re-display it"
         read -n 1 -p "Your choice: " choice
         case "$choice" in
-            [Yy] ) return 0;;
-            [Nn] ) return 1;;
-            [Rr] ) display_combined_list; continue;;
-            * ) echo "Please answer by Y, N or R.";;
+            [Yy] ) echo "
+Upgrade confirmed!"; return 0;;
+            [Nn] ) echo "
+Upgrade cancelled!"; return 1;;
+            * ) echo "Please answer by Y or N.";;
         esac
     done
-}
-
-# Read names from file and create SQL commands
-generate_sql_to_remove_commands() {
-    local name
-    local sql_commands=""
-    while IFS= read -r name; do
-        sql_commands+="UPDATE ir_module_module SET to_remove = TRUE WHERE name = '$name';"
-    done < combined_addons
-    echo "$sql_commands"
 }
 
 # Main execution
@@ -105,29 +88,35 @@ SQL_404_ADDONS_LIST="
 echo "Retrieve 404 addons... "
 query_postgres_container "$SQL_404_ADDONS_LIST" "$DB_NAME" > 404_addons || exit 1
 
+# Create combined list of add-ons not found and add-ons which must be removed
+cat 404_addons force_uninstall_addons | sort | uniq > combined_addons
+
+# Keep only the installed add-ons
+INSTALLED_ADDONS="SELECT name FROM ir_module_module WHERE state='installed';"
+query_postgres_container "$INSTALLED_ADDONS" "$DB_NAME" > installed_addons || exit 1
+
+grep -Fx -f combined_addons installed_addons > addons_to_remove
+rm -f 404_addons combined_addons installed_addons
 
 # Ask confirmation to uninstall the selected add-ons
-display_combined_list
-
-
-if ask_confirmation; then
-    echo "Upgrade goes on..."
-else
-    echo "Upgrade stopped."
-    exit 1
-fi
-
-
+echo "
+==== FIRST CHECK ====
+Installed add-ons to uninstall (forced OR not found in final Odoo version):
+"
+cat addons_to_remove
+ask_confirmation || exit 1
 
 # Tag the selected add-ons as "to remove"
 echo "TAG the add-ons to remove..."
 SQL_TAG_TO_REMOVE=""
 while IFS= read -r name; do
     SQL_TAG_TO_REMOVE+="UPDATE ir_module_module SET to_remove = TRUE WHERE name = '$name' AND state = 'installed';"
-done < combined_addons
+done < addons_to_remove
+echo $SQL_TAG_TO_REMOVE
 query_postgres_container "$SQL_TAG_TO_REMOVE" "$DB_NAME" || exit 1
 echo "Add-ons to be removed TAGGED."
 
+rm -f addons_to_remove
 
 # Identify the add-ons which depend on the add-on to uninstall
 echo "Detect and tag add-ons dependencies..."
@@ -151,6 +140,15 @@ echo "Change state of all add-ons to remove..."
 SQL_UPDATE_STATE="UPDATE ir_module_module SET state = 'to remove' WHERE to_remove = TRUE AND state = 'installed';"
 query_postgres_container "$SQL_UPDATE_STATE" "$DB_NAME" || exit 1
 echo "Add-ons to remove with state 'to remove'"
+
+# Last check on all the add-ons to be removed
+echo "
+==== LAST CHECK! ====
+Here is the whole list of add-ons to be removed:
+"
+SQL_ADDONS_TO_BE_REMOVED="SELECT name from ir_module_module WHERE state='to remove';"
+query_postgres_container "$SQL_ADDONS_TO_BE_REMOVED" "$DB_NAME" || exit 1
+ask_confirmation || exit 1
 
 
 # Launch Odooo container and launch the uninstall function
