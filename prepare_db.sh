@@ -40,11 +40,11 @@ Do you accept to uninstall all these add-ons? (Y/N/R)"
         echo "Y - Yes, let's go on with the upgrade."
         echo "N - No, stop the upgrade"
         echo "R - I've edited the list, please Re-display it"
-        read -p "Your choice: " choice
-        case $choice in
-            [Yy]* ) return 0;;
-            [Nn]* ) return 1;;
-            [Rr]* ) display_combined_list; continue;;
+        read -n 1 -p "Your choice: " choice
+        case "$choice" in
+            [Yy] ) return 0;;
+            [Nn] ) return 1;;
+            [Rr] ) display_combined_list; continue;;
             * ) echo "Please answer by Y, N or R.";;
         esac
     done
