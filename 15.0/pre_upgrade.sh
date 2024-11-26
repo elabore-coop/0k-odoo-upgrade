@@ -36,8 +36,7 @@ query_postgres_container "$PRE_MIGRATE_SQL" >&1
 
 
 # Copy filestores
-rm -rf /srv/datastore/data/ou15/var/lib/odoo/filestore/ou15/* || exit 1
-mkdir /srv/datastore/data/ou15/var/lib/odoo/filestore/ou15/* || exit 1
-cp -a /srv/datastore/data/ou14/var/lib/odoo/filestore/ou14/* /srv/datastore/data/ou15/var/lib/odoo/filestore/ou15/ || exit 1
+rm -rf /srv/datastore/data/ou15/var/lib/odoo/filestore/ou15 || exit 1
+cp -a /srv/datastore/data/ou14/var/lib/odoo/filestore/ou14 /srv/datastore/data/ou15/var/lib/odoo/filestore/ou15 || exit 1
 
 echo "Ready for migration to 15.0!"

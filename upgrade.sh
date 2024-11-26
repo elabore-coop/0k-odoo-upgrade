@@ -101,10 +101,7 @@ echo "UPGRADE: original database copied in ${COPY_DB_NAME}@${COPY_DB_NAME}."
 
 # Copy filestore
 rm -rf /srv/datastore/data/${COPY_DB_NAME}/var/lib/odoo/filestore/${COPY_DB_NAME} || exit 1
-
-mkdir /srv/datastore/data/${COPY_DB_NAME}/var/lib/odoo/filestore/${COPY_DB_NAME} || exit 1
-
-cp -a /srv/datastore/data/$ORIGIN_SERVICE_NAME/var/lib/odoo/filestore/$ORIGIN_DB_NAME/* /srv/datastore/data/$COPY_DB_NAME/var/lib/odoo/filestore/$COPY_DB_NAME/. || exit 1
+cp -a /srv/datastore/data/$ORIGIN_SERVICE_NAME/var/lib/odoo/filestore/$ORIGIN_DB_NAME /srv/datastore/data/$COPY_DB_NAME/var/lib/odoo/filestore/$COPY_DB_NAME || exit 1
 
 echo "UPGRADE: original filestore copied."
 
