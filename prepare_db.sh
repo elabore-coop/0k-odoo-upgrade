@@ -98,7 +98,7 @@ echo "Base neutralized..."
 SQL_INIT=$(cat <<'EOF'
 ALTER TABLE ir_module_module ADD COLUMN IF NOT EXISTS to_remove BOOLEAN;
 ALTER TABLE ir_module_module ADD COLUMN IF NOT EXISTS dependencies VARCHAR;
-UPDATE ir_module_module SET state = 'installed' WHERE state = 'to_remove';
+UPDATE ir_module_module SET state = 'installed' WHERE state = 'to remove';
 UPDATE ir_module_module SET to_remove = false;
 UPDATE ir_module_module SET dependencies = '';
 EOF
