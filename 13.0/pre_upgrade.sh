@@ -17,9 +17,7 @@ EOF
 )
 query_postgres_container "$PRE_MIGRATE_SQL" ou13 || exit 1
 
-
 # Copy filestores
-rm -rf /srv/datastore/data/ou13/var/lib/odoo/filestore/ou13 || exit 1
-cp -a /srv/datastore/data/ou12/var/lib/odoo/filestore/ou12 /srv/datastore/data/ou13/var/lib/odoo/filestore/ou13 || exit 1
+copy_filestore ou12 ou12 ou13 ou13 || exit 1
 
 echo "Ready for migration to 13.0!"

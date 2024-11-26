@@ -61,6 +61,17 @@ query_postgres_container(){
 }
 export -f query_postgres_container
 
+# Function to copy the filetores
+copy_filestore(){
+    local FROM_SERVICE="$1"
+    local FROM_DB="$2"
+    local TO_SERVICE="$3"
+    local TO_DB="$4"
+    rm -rf /srv/datastore/data/"$TO_SERVICE"/var/lib/odoo/filestore/"$TO_DB" || exit 1
+    cp -a /srv/datastore/data/"$FROM_SERVICE"/var/lib/odoo/filestore/"$FROM_DB" /srv/datastore/data/"$TO_SERVICE"/var/lib/odoo/filestore/"$TO_DB" || exit 1
+    echo "Filestore $FROM_SERVICE/$FROM_DB copied."
+}
+export -f copy_filestore
 
 ##############################################
 # CHECKS ALL NEEDED COMPONENTS ARE AVAILABLE #
@@ -119,9 +130,7 @@ docker exec -u 70 $POSTGRES_SERVICE_NAME pgm cp -f "$ORIGIN_DB_NAME" "${COPY_DB_
 echo "UPGRADE: original database copied in ${COPY_DB_NAME}@${COPY_DB_NAME}."
 
 # Copy filestore
-rm -rf /srv/datastore/data/${COPY_DB_NAME}/var/lib/odoo/filestore/${COPY_DB_NAME} || exit 1
-cp -a /srv/datastore/data/$ORIGIN_SERVICE_NAME/var/lib/odoo/filestore/$ORIGIN_DB_NAME /srv/datastore/data/$COPY_DB_NAME/var/lib/odoo/filestore/$COPY_DB_NAME || exit 1
-
+copy_filestore "$ORIGIN_SERVICE_NAME" "$ORIGIN_DB_NAME" "$COPY_DB_NAME" "$COPY_DB_NAME" || exit 1
 echo "UPGRADE: original filestore copied."
 
 
