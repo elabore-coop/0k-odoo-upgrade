@@ -9,13 +9,11 @@ FINAL_VERSION="$2" # "16" for version 16.0
 # Path to the database to migrate. Must be a .zip file with the following syntax: {DATABASE_NAME}.zip
 ORIGIN_DB_NAME="$3"
 ORIGIN_SERVICE_NAME="$4"
-FINALE_DB_MODEL_NAME="$5" #To check the add-ons available in the finale version
-
 
 # Get origin database name
 COPY_DB_NAME="ou${ORIGIN_VERSION}"
 # Define finale database name
-FINALE_DB_NAME="ou${FINAL_VERSION}"
+export FINALE_DB_NAME="ou${FINAL_VERSION}"
 # Define finale odoo service name
 FINALE_SERVICE_NAME="${FINALE_DB_NAME}"
 
@@ -31,7 +29,6 @@ echo "Origin version .......... $ORIGIN_VERSION"
 echo "Final version ........... $FINAL_VERSION"
 echo "Origin DB name ........... $ORIGIN_DB_NAME"
 echo "Origin service name ..... $ORIGIN_SERVICE_NAME"
-echo "Finale DB model name .... $FINALE_DB_MODEL_NAME"
 
 echo "
 ===== COMPUTED GLOBALE VARIABLES ====="
@@ -104,15 +101,6 @@ else
     exit 1
 fi
 
-# Check final version database model is in the local postgres
-DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$FINALE_DB_MODEL_NAME'" | tr -d '[:space:]')
-if [ "$DB_EXISTS" ]; then
-    echo "UPGRADE: Database '$FINALE_DB_MODEL_NAME' found."
-else
-    echo "ERROR: Database '$FINALE_DB_MODEL_NAME' not found in the local postgress service. Please add it and restart the upgrade process."
-    exit 1
-fi
-
 # Check that the origin filestore exist
 REPERTOIRE="/srv/datastore/data/${ORIGIN_SERVICE_NAME}/var/lib/odoo/filestore/${ORIGIN_DB_NAME}"
 if [ -d $REPERTOIRE ]; then
@@ -122,6 +110,20 @@ else
     exit 1
 fi
 
+#######################################
+# LAUNCH VIRGIN ODOO IN FINAL VERSION #
+#######################################
+
+compose --debug run "$FINALE_SERVICE_NAME" --stop-after-init --no-http
+
+# Check final version database model is in the local postgres
+DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$FINALE_SERVICE_NAME'" | tr -d '[:space:]')
+if [ "$DB_EXISTS" ]; then
+    echo "UPGRADE: Database '$FINALE_SERVICE_NAME' found."
+else
+    echo "ERROR: Database '$FINALE_SARVICE_NAME' not found in the local postgress service."
+    exit 1
+fi
 
 
 ############################

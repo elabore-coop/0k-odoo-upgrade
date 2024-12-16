@@ -19,14 +19,13 @@
 ### Local Migration process
 
 - [ ] launch the origin database `ORIGIN_DATABASE_NAME` with original version of Odoo, with odoo service `ORIGIN_SERVICE`
-- [ ] ensure you have a virgin database of the final version  already in your postgres service (`MODEL_FINAL_DATABASE_NAME`)
 - [ ] launch the following command:
 
 ``` bash
-./upgrade.sh {ORIGIN_VERSION} {DESTINATION_VERSION} {ORIGIN_DATABASE_NAME} {ORIGIN_SERVICE} {MODEL_FINAL_DATABASE_NAME}
+./upgrade.sh {ORIGIN_VERSION} {DESTINATION_VERSION} {ORIGIN_DATABASE_NAME} {ORIGIN_SERVICE}
 ```
 
-ex: ./upgrade.sh 14 16 elabore_20241208 odoo14 ou16
+ex: ./upgrade.sh 14 16 elabore_20241208 odoo14
 
 ### Deploy migrated base
 
@@ -41,7 +40,7 @@ The migration script will manage the uninstall of Odoo add-ons:
 - add-ons we want to uninstall, whatever the reasons
 - add-ons to uninstall because they do not exist in the final Odoo docker image
 
-At the beginning of the process, the script compare the list of add-ons installed in the origin database, and the list of add-ons available in the `MODEL_FINAL_DATABASE`.
+At the beginning of the process, the script compare the list of add-ons installed in the origin database, and the list of add-ons available in the finlal Odoo docker image.
 
 The whole list of add-ons to uninstall is displayed, and needs a confirmation before starting the migration.
 

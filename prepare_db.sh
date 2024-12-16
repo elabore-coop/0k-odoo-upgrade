@@ -77,7 +77,7 @@ SQL_404_ADDONS_LIST="
 	FROM ir_module_module module_origin
 	LEFT   JOIN (
 	   SELECT *
-	   FROM   dblink('dbname=$DB_FINALE_MODEL','SELECT name, shortdesc, author FROM ir_module_module')
+	   FROM   dblink('dbname=$FINALE_DB_NAME','SELECT name, shortdesc, author FROM ir_module_module')
 	   AS     tb2(name text, shortdesc text, author text)
 	) AS module_dest ON module_dest.name = module_origin.name
 
