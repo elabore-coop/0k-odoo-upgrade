@@ -7,13 +7,12 @@
 ORIGIN_VERSION="$1" # "12" for version 12.0
 FINAL_VERSION="$2" # "16" for version 16.0
 # Path to the database to migrate. Must be a .zip file with the following syntax: {DATABASE_NAME}.zip
-ORIGIN_DATABASE_PATH="$3"
+ORIGIN_DB_NAME="$3"
 ORIGIN_SERVICE_NAME="$4"
 FINALE_DB_MODEL_NAME="$5" #To check the add-ons available in the finale version
 
 
 # Get origin database name
-ORIGIN_DB_NAME=$(basename "$ORIGIN_DATABASE_PATH" .zip)
 COPY_DB_NAME="ou${ORIGIN_VERSION}"
 # Define finale database name
 FINALE_DB_NAME="ou${FINAL_VERSION}"
@@ -30,13 +29,12 @@ export POSTGRES_SERVICE_NAME="lokavaluto_postgres_1"
 echo "===== INPUT PARAMETERS ====="
 echo "Origin version .......... $ORIGIN_VERSION"
 echo "Final version ........... $FINAL_VERSION"
-echo "Origin database path .... $ORIGIN_DATABASE_PATH"
+echo "Origin DB name ........... $ORIGIN_DB_NAME"
 echo "Origin service name ..... $ORIGIN_SERVICE_NAME"
 echo "Finale DB model name .... $FINALE_DB_MODEL_NAME"
 
 echo "
 ===== COMPUTED GLOBALE VARIABLES ====="
-echo "Origin DB name ........... $ORIGIN_DB_NAME"
 echo "Copy DB name ............. $COPY_DB_NAME"
 echo "Finale DB name ........... $FINALE_DB_NAME"
 echo "Finale service name ...... $FINALE_SERVICE_NAME"

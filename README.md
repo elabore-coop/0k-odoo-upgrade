@@ -23,10 +23,10 @@
 - [ ] launch the following command:
 
 ``` bash
-./upgrade.sh {ORIGIN_VERSION} {DESTINATION_VERSION} {PATH_TO_DATABASE_ZIP} {ORIGIN_SERVICE} {MODEL_FINAL_DATABASE_NAME}
+./upgrade.sh {ORIGIN_VERSION} {DESTINATION_VERSION} {ORIGIN_DATABASE_NAME} {ORIGIN_SERVICE} {MODEL_FINAL_DATABASE_NAME}
 ```
 
-ex: ./upgrade.sh 14 16 ../14.0/elabore_20241208-2.zip odoo14 ou16
+ex: ./upgrade.sh 14 16 elabore_20241208 odoo14 ou16
 
 ### Deploy migrated base
 
