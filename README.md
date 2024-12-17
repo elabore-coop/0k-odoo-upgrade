@@ -12,7 +12,7 @@
 ### Before migration
 
 - [ ] import the origin database to migrate on local computer
-- [ ] Uninstall all useless Odoo add-ons. Warning: do not uninstall add-ons for which the disappearance in the finale version is managed by Open Upgrade scrips.
+- [ ] Uninstall all known useless Odoo add-ons. Warning: do not uninstall add-ons for which the disappearance in the finale version is managed by Open Upgrade scrips.
 - [ ] Unsure all the add-ons are migrated in the final Odoo version
 - [ ] (optional) De-active all the website views
 
@@ -24,8 +24,16 @@
 ``` bash
 ./upgrade.sh {ORIGIN_VERSION} {DESTINATION_VERSION} {ORIGIN_DATABASE_NAME} {ORIGIN_SERVICE}
 ```
-
 ex: ./upgrade.sh 14 16 elabore_20241208 odoo14
+
+- [ ] Inspect the list of add-ons identified as missing in the final Odoo docker image:
+  - if you want to uninstall some of them:
+	- STOP the process (N)
+	- uninstall the concernet add-ons manually
+	- launch the migration script again
+  - if the list suits you, show can go on (Y)!
+
+The migration process should run all the middle-migrations until the last one without action needed from you.
 
 ### Deploy migrated base
 
@@ -43,6 +51,10 @@ The migration script will manage the uninstall of Odoo add-ons:
 At the beginning of the process, the script compare the list of add-ons installed in the origin database, and the list of add-ons available in the finlal Odoo docker image.
 
 The whole list of add-ons to uninstall is displayed, and needs a confirmation before starting the migration.
+
+## Customize the migration scripts
+
+FEATURE COMING SOON...
 
 
 ## Manage migration issues
