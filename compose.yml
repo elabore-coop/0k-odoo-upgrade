@@ -39,8 +39,8 @@ ou14:
 ou15:
   charm: odoo-tecnativa
   docker-compose:
-    #image: docker.0k.io/mirror/odoo:rc_15.0-MYC-INIT
-    image: docker.0k.io/mirror/odoo/rc_15.0-myc-init-20241007-092844-0f8b8b
+    image: docker.0k.io/mirror/odoo:rc_15.0-MYC-INIT
+      #image: docker.0k.io/mirror/odoo/rc_15.0-myc-init-20241007-092844-0f8b8b
     ## Important to keep as a list: otherwise it'll overwrite charm's arguments.
     command:
       - "--log-level=debug"

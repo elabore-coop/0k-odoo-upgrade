@@ -71,6 +71,7 @@ copy_filestore(){
     local FROM_DB="$2"
     local TO_SERVICE="$3"
     local TO_DB="$4"
+    mkdir -p /srv/datastore/data/"$TO_SERVICE"/var/lib/odoo/filestore/"$TO_DB" || exit 1
     rm -rf /srv/datastore/data/"$TO_SERVICE"/var/lib/odoo/filestore/"$TO_DB" || exit 1
     cp -a /srv/datastore/data/"$FROM_SERVICE"/var/lib/odoo/filestore/"$FROM_DB" /srv/datastore/data/"$TO_SERVICE"/var/lib/odoo/filestore/"$TO_DB" || exit 1
     echo "Filestore $FROM_SERVICE/$FROM_DB copied."
