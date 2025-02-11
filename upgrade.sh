@@ -114,17 +114,15 @@ fi
 # LAUNCH VIRGIN ODOO IN FINAL VERSION #
 #######################################
 
-compose --debug run "$FINALE_SERVICE_NAME" --stop-after-init --no-http
-
-# Check final version database model is in the local postgres
-DB_EXISTS=$(docker exec -it -u 70 $POSTGRES_SERVICE_NAME psql -tc "SELECT 1 FROM pg_database WHERE datname = '$FINALE_SERVICE_NAME'" | tr -d '[:space:]')
-if [ "$DB_EXISTS" ]; then
-    echo "UPGRADE: Database '$FINALE_SERVICE_NAME' found."
-else
-    echo "ERROR: Database '$FINALE_SARVICE_NAME' not found in the local postgress service."
-    exit 1
+# Remove finale database and datastore if already exists (we need a virgin Odoo)
+if docker exec -u 70 "$POSTGRES_SERVICE_NAME" pgm ls | grep -q "$FINALE_SERVICE_NAME"; then
+    docker exec -u 70 "$POSTGRES_SERVICE_NAME" pgm rm -f "$FINALE_SERVICE_NAME"
+    rm -rf /srv/datastore/data/"$FINALE_SERVICE_NAME"/var/lib/odoo/filestore/"$FINALE_SERVICE_NAME"
 fi
 
+compose --debug run "$FINALE_SERVICE_NAME" -i base --stop-after-init --no-http
+
+echo "Model database in final Odoo version created."
 
 ############################
 # COPY ORIGINAL COMPONENTS #
